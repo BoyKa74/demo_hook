@@ -1,52 +1,48 @@
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo, useMemo, useContext } from "react";
+import UserContext from "./userContext";
+import Item from "./item";
 
-function Content({ handleCount }) {
-  let [text, setText] = useState("");
-  let [todos, setTodos] = useState([]);
-  let inputTitle = useRef();
+function Content() {
+  let { users, handleSubmit } = useContext(UserContext);
 
-  useEffect(() => {
-    console.log("useEffect");
-    document.title = text;
-  }, [text]);
+  let ipName = useRef();
+  let ipScore = useRef();
 
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/todos")
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setTodos(json);
-      });
-    return () => {
-      console.log("Un Mouting");
-    };
-  }, []);
-  let data = todos.map((item) => {
-    return <li key={item.id}>{item.title}</li>;
+  let data = users.map((user, index) => {
+    return <Item key={index} user={user} index={index} />;
   });
 
-  console.log("Re-render Content");
+  let tb = useMemo(() => {
+    console.log("useMemo");
+    let total = users.reduce((total, user) => {
+      return total + parseInt(user.score);
+    }, 0);
+    return total / users.length;
+  }, [users]);
 
   return (
     <div className="Content">
-      <button onClick={handleCount}>+</button>
-      <h1>Hello Hook</h1>
-      Title:{" "}
-      <input
-        ref={inputTitle}
-        onChange={(e) => {
-          setText(e.target.value);
-        }}
-      />
-      <button
-        onClick={() => {
-          console.log(inputTitle);
-          inputTitle.current.focus();
-        }}
-      >
-        Focus
-      </button>
-      <ul>{data}</ul>
+      <form>
+        Name: <input ref={ipName}></input> <br />
+        Score: <input ref={ipScore}></input> <br />
+        <button
+          onClick={() => {
+            handleSubmit(ipName.current.value, ipScore.current.value);
+          }}
+          type="button"
+        >
+          Add User
+        </button>
+      </form>
+      <h3>{tb}</h3>
+      <table border={1}>
+        <tr>
+          <th>Name</th>
+          <th>Score</th>
+          <th>Action</th>
+        </tr>
+        {data}
+      </table>
     </div>
   );
 }

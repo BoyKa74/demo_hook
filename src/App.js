@@ -1,40 +1,38 @@
-import logo from "./logo.svg";
 import "./App.css";
-import { useState, useEffect, useRef, useCallback } from "react";
-import Content from "./content";
+import { useReducer } from "react";
+import Main from "./main";
+import UserContext from "./userContext";
+import { addUser, deleteUser } from "./actions";
+import reducer from "./reducer";
 
 function App() {
-  let [count, setCount] = useState(0);
-  let [show, setShow] = useState(false);
-  let handleCount = useCallback(() => {
-    setCount((prevState) => prevState + 1);
-  }, []);
-  // function handleCount
-
-  // let a = 5; // a #fff = 5
-
-  // handleCount #ff3 =  ff5
-  // ff4 =  {
-  //   setCount((prevState) => prevState + 1);
-  // }
-
-  console.log("Re-render APP");
+  let [users, dispatch] = useReducer(reducer, [
+    {
+      name: "Nguyen Van A",
+      score: 10,
+    },
+    {
+      name: "Nguyen Van B",
+      score: 8,
+    },
+  ]);
 
   return (
-    <div className="App">
-      <h2>{count}</h2>
-
-      <br />
-
-      <button
-        onClick={() => {
-          setShow(!show);
-        }}
-      >
-        Show/hide Content
-      </button>
-      {show && <Content handleCount={handleCount} />}
-    </div>
+    <UserContext.Provider
+      value={{
+        users,
+        handleSubmit: (name, score) => {
+          dispatch(addUser(name, score));
+        },
+        handleDelete: (index) => {
+          dispatch(deleteUser(index));
+        },
+      }}
+    >
+      <div className="App">
+        <Main />
+      </div>
+    </UserContext.Provider>
   );
 }
 
